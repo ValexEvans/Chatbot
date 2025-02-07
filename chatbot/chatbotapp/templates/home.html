@@ -39,6 +39,37 @@ document.getElementById("send-btn").addEventListener("click", function() {
     `;
     chatContainer.appendChild(userMessageDiv);
 
+    // Send 
+    fetch("http://localhost:11434/api/chat", {
+      method: "POST",
+      headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": "{{ csrf_token }}"
+      },
+      body: JSON.stringify({ message: [
+        "model": "deepseek-r1",
+        { "role": "user", "content": userInput }
+      ]})
+  })
+  .then(response => response.json())
+  .then(data => {
+      // Display Bot Response
+      let botMessageDiv = document.createElement("div");
+      botMessageDiv.className = "border rounded-3 p-2 m-2 bg-light";
+      botMessageDiv.innerHTML = `
+          <img src="/w3images/bandmember.jpg" alt="Avatar">
+          <p>${data.bot_response}</p>
+          <span>${new Date().toLocaleTimeString()}</span>
+      `;
+      chatContainer.appendChild(botMessageDiv);
+
+      // Clear input field
+      document.getElementById("user-input").value = "";
+      chatContainer.scrollTop = chatContainer.scrollHeight; // Auto-scroll to the latest message
+  })
+  .catch(error => console.error("Error:", error));
+
+
     // Send Data to Backend
     fetch("{% url 'chat' %}", {
         method: "POST",
