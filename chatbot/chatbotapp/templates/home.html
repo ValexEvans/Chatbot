@@ -1,38 +1,71 @@
-{% extends "base.html" %} {% block title %}Home{% endblock %}
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
 
 {% block content %}
 
 <div class="d-flex flex-column" style="height: 100%;">
-    <div class="d-flex flex-column" style="height: 90%;">
+    <div id="chat-container" class="d-flex flex-column" style="height: 90%; overflow-y: auto;">
 
-        <div class="container-left">
-            <img src="/w3images/bandmember.jpg" alt="Avatar">
-            <p>Hello. How are you today?</p>
-            <span class="time-right">11:00</span>
-          </div>
-          
-          <div class="container-right darker ">
-            <img src="/w3images/avatar_g2.jpg" alt="Avatar" class="right">
-            <p>Hey! I'm fine. Thanks for asking!</p>
-            <span class="time-left">11:01</span>
-          </div>
-          
-          <div class="container-left">
-            <img src="/w3images/bandmember.jpg" alt="Avatar">
-            <p>Sweet! So, what do you wanna do today?</p>
-            <span class="time-right">11:02</span>
-          </div>
-          
-          <div class="container-right darker">
-            <img src="/w3images/avatar_g2.jpg" alt="Avatar" class="right">
-            <p>Nah, I dunno. Play soccer.. or learn more coding perhaps?</p>
-            <span class="time-left">11:05</span>
-          </div>
-          
+        {% for message in messages %}
+        <div class="border rounded-3 p-2 m-2 {% if message.user %}text-white bg-dark{% else %}bg-light{% endif %}">
+            <img src="{% if message.user %}/w3images/avatar_g2.jpg{% else %}/w3images/bandmember.jpg{% endif %}" alt="Avatar">
+            <p>{{ message.user|default:"Bot" }}: {{ message.text }}</p>
+            <span class="">{{ message.timestamp }}</span>
+        </div>
+        {% endfor %}
+
     </div>
-    <input type="text" placeholder="Ask me anything"></input>
+
+    <!-- Input Field & Send Button -->
+    <div class="d-flex p-2">
+        <input id="user-input" type="text" class="form-control" placeholder="Ask me anything">
+        <button id="send-btn" class="btn btn-primary ms-2">Send</button>
+    </div>
 </div>
 
+<script>
+document.getElementById("send-btn").addEventListener("click", function() {
+    let userInput = document.getElementById("user-input").value;
+    if (userInput.trim() === "") return;  // Ignore empty messages
 
+    // Display User Message
+    let chatContainer = document.getElementById("chat-container");
+    let userMessageDiv = document.createElement("div");
+    userMessageDiv.className = "border rounded-3 p-2 m-2 text-white bg-dark";
+    userMessageDiv.innerHTML = `
+        <img src="/w3images/avatar_g2.jpg" alt="Avatar">
+        <p>${userInput}</p>
+        <span>${new Date().toLocaleTimeString()}</span>
+    `;
+    chatContainer.appendChild(userMessageDiv);
+
+    // Send Data to Backend
+    fetch("{% url 'chat' %}", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": "{{ csrf_token }}"
+        },
+        body: JSON.stringify({ message: userInput })
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Display Bot Response
+        let botMessageDiv = document.createElement("div");
+        botMessageDiv.className = "border rounded-3 p-2 m-2 bg-light";
+        botMessageDiv.innerHTML = `
+            <img src="/w3images/bandmember.jpg" alt="Avatar">
+            <p>${data.bot_response}</p>
+            <span>${new Date().toLocaleTimeString()}</span>
+        `;
+        chatContainer.appendChild(botMessageDiv);
+
+        // Clear input field
+        document.getElementById("user-input").value = "";
+        chatContainer.scrollTop = chatContainer.scrollHeight; // Auto-scroll to the latest message
+    })
+    .catch(error => console.error("Error:", error));
+});
+</script>
 
 {% endblock %}

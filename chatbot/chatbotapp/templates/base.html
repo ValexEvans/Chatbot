@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-  <style>
+  {% comment %} <style>
     /* Chat containers */
     .container-right {
       border: 2px solid #dedede;
@@ -10,9 +10,6 @@
       border-radius: 5px;
       padding: 10px;
       margin: 10px 0;
-      width: 50%;
-      float: right;
-      margin-right: 0%;
     }
     .container-left {
       border: 2px solid #dedede;
@@ -20,8 +17,6 @@
       border-radius: 5px;
       padding: 10px;
       margin: 10px 0;
-      width: 50%;
-
     }
 
     /* Darker chat container */
@@ -35,7 +30,6 @@
       content: "";
       clear: both;
       display: table;
-
     }
 
     /* Style images */
@@ -66,7 +60,8 @@
       float: left;
       color: #999;
     }
-  </style>
+  </style> {% endcomment %}
+
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
@@ -75,9 +70,11 @@
     Django App
     {% endblock %}
   </title>
-
+  {% load bootstrap5 %}
+  {% bootstrap_css %}
+  {% bootstrap_javascript %}
   <!-- Bootstrap CSS -->
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" />
+  {% comment %} <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" /> {% endcomment %}
 </head>
 
 <body>
